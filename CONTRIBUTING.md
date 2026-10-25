@@ -4,18 +4,18 @@ Welcome! We are excited that you are interested in contributing to **GitScreen**
 
 ---
 
-## 🌟 How You Can Contribute
+## How You Can Contribute
 
 Whether you are fixing a typo, optimizing an algorithm, proposing a new feature, or adding test coverage, your contributions are welcome:
 
-- 🐛 **Report Bugs**: Identify unexpected behavior, crashes, or device-specific layout quirks.
-- 💡 **Suggest Features**: Propose visual diffing tools, branch export to ZIP/Git, or cloud backup plugins.
-- 🛠️ **Submit Pull Requests**: Fix reported issues, improve code documentation, or enhance Compose UI animations.
-- 📖 **Improve Documentation**: Enhance instructions, clarify setup steps, or share tutorials.
+- **Report Bugs**: Identify unexpected behavior, crashes, or device-specific layout quirks.
+- **Suggest Features**: Propose visual diffing tools, branch export to ZIP/Git, or cloud backup plugins.
+- **Submit Pull Requests**: Fix reported issues, improve code documentation, or enhance Compose UI animations.
+- **Improve Documentation**: Enhance instructions, clarify setup steps, or share tutorials.
 
 ---
 
-## 🚀 Getting Started with Development
+## Getting Started with Development
 
 ### 1. Fork and Clone
 ```bash
@@ -37,7 +37,7 @@ git checkout -b fix/issue-description
 
 ---
 
-## 📐 Coding Standards & Guidelines
+## Coding Standards & Guidelines
 
 - **Kotlin Official Style**: Follow the [official Kotlin Coding Conventions](https://kotlinlang.org/docs/coding-conventions.html).
 - **Compose Best Practices**:
@@ -54,7 +54,7 @@ git checkout -b fix/issue-description
 
 ---
 
-## 🔄 Pull Request (PR) Workflow
+## Pull Request (PR) Workflow
 
 1. Ensure your code compiles cleanly:
    ```bash
@@ -73,7 +73,7 @@ git checkout -b fix/issue-description
 
 ---
 
-## 📜 Code of Conduct
+## Code of Conduct
 
 All contributors are expected to uphold a welcoming, respectful, and inclusive environment. Please review our [Code of Conduct](CODE_OF_CONDUCT.md).
 

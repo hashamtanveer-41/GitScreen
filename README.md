@@ -13,14 +13,14 @@
 </p>
 
 [![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026-orange?style=flat-square&logo=hacktoberfest)](https://hacktoberfest.com/)
-[![Hackathon Track](https://img.shields.io/badge/Track-Developer%20Tools%20%26%20Productivity-blueviolet?style=flat-square)](#-track-alignment)
-[![Kiro Track](https://img.shields.io/badge/Built%20With-Kiro%20Track-FF6B6B?style=flat-square)](#-kiro-challenge-track-usage)
+[![Hackathon Track](https://img.shields.io/badge/Track-Developer%20Tools%20%26%20Productivity-blueviolet?style=flat-square)](#track-alignment)
+[![Kiro Track](https://img.shields.io/badge/Built%20With-Kiro%20Track-FF6B6B?style=flat-square)](#kiro-challenge-track-usage)
 
 </div>
 
 ---
 
-## 🧭 Track Alignment
+## Track Alignment
 
 This project is submitted to the **Hacktoberfest Hackathon NUST × NSTP** under:
 
@@ -29,7 +29,7 @@ This project is submitted to the **Hacktoberfest Hackathon NUST × NSTP** under:
 
 ---
 
-## 🎯 Problem Statement
+## Problem Statement
 
 ### The Problem
 During rapid mobile development cycles, engineers, QA testers, and UI/UX designers take dozens—often hundreds—of device screenshots every sprint to document bugs, track UI transitions, verify localization, and compare design revisions.
@@ -46,7 +46,7 @@ However, modern mobile operating systems dump all captured screenshots into a si
 
 ---
 
-## 💡 The Solution
+## The Solution
 
 **GitScreen** introduces **Git-like version control semantics to mobile screenshots**. 
 
@@ -60,20 +60,20 @@ Running silently in the background, GitScreen monitors new screenshot creations 
 
 ---
 
-## ✨ Key Features
+## Key Features
 
-- 🔍 **Automated Foreground App Heuristics**: Analyzes usage event windows to reliably determine the active foreground package right before the screenshot gesture completed.
-- 🏷️ **Automated Version Branching**: Resolves semantic version strings (`1.0.0`, `2.1.0-beta`) directly from installed package manifests, grouping screenshots into version buckets.
-- 📁 **Organized Scoped Media Storage**: Creates clean directories inside the standard Android `Pictures` directory using Android 10+ MediaStore scoped storage APIs.
-- 🎨 **Jetpack Compose Material 3 UI**: Clean, dynamic-themed interface with dark/light mode, card summaries, version timelines, and image zoom grids.
-- 🛡️ **Race-Condition & Deduplication Architecture**: Coalesces MediaStore event bursts using atomic boolean flags, coroutine `Mutex` serialization, and Room unique index constraints (`originalUri`).
-- 🔔 **Manual Tagging Fallback with Direct Launch**: Displays a high-priority action notification when an app cannot be auto-detected, opening a dedicated lightweight `ManualTagActivity` to tag in seconds.
-- 🔄 **Persistent Background Observer**: Foreground service (`ScreenshotWatcherService`) registered with `BOOT_COMPLETED` broadcast receiver to ensure continuous tracking across reboots.
-- 🔒 **100% Offline & Private**: Zero network permissions requested. All metadata querying, file organizing, and database storage happens strictly on-device.
+- **Automated Foreground App Heuristics**: Analyzes usage event windows to reliably determine the active foreground package right before the screenshot gesture completed.
+- **Automated Version Branching**: Resolves semantic version strings (`1.0.0`, `2.1.0-beta`) directly from installed package manifests, grouping screenshots into version buckets.
+- **Organized Scoped Media Storage**: Creates clean directories inside the standard Android `Pictures` directory using Android 10+ MediaStore scoped storage APIs.
+- **Jetpack Compose Material 3 UI**: Clean, dynamic-themed interface with dark/light mode, card summaries, version timelines, and image zoom grids.
+- **Race-Condition & Deduplication Architecture**: Coalesces MediaStore event bursts using atomic boolean flags, coroutine `Mutex` serialization, and Room unique index constraints (`originalUri`).
+- **Manual Tagging Fallback with Direct Launch**: Displays a high-priority action notification when an app cannot be auto-detected, opening a dedicated lightweight `ManualTagActivity` to tag in seconds.
+- **Persistent Background Observer**: Foreground service (`ScreenshotWatcherService`) registered with `BOOT_COMPLETED` broadcast receiver to ensure continuous tracking across reboots.
+- **100% Offline & Private**: Zero network permissions requested. All metadata querying, file organizing, and database storage happens strictly on-device.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 | Layer | Technology | Details |
 |---|---|---|
@@ -89,7 +89,7 @@ Running silently in the background, GitScreen monitors new screenshot creations 
 
 ---
 
-## 🤖 Kiro Challenge Track Usage
+## Kiro Challenge Track Usage
 
 During the development of **GitScreen**, **Kiro** was utilized as an AI development accelerator across all phases of the project:
 
@@ -110,7 +110,7 @@ During the development of **GitScreen**, **Kiro** was utilized as an AI developm
 
 ---
 
-## 🏗️ Architecture & Workflow
+## Architecture & Workflow
 
 ### Directory Structure
 
@@ -188,7 +188,7 @@ sequenceDiagram
 
 ---
 
-## 🎬 Live Demonstration & Verification Guide
+## Live Demonstration & Verification Guide
 
 Judges and evaluators can verify GitScreen's core functionality in 4 simple steps:
 
@@ -213,7 +213,7 @@ Judges and evaluators can verify GitScreen's core functionality in 4 simple step
 
 ---
 
-## 🔒 Permissions & Security
+## Permissions & Security
 
 GitScreen is engineered strictly under **Zero-Trust Privacy** principles:
 
@@ -225,11 +225,12 @@ GitScreen is engineered strictly under **Zero-Trust Privacy** principles:
 | `FOREGROUND_SERVICE` & `FOREGROUND_SERVICE_DATA_SYNC` | Keeps the ContentObserver alive in background memory without being killed by Android battery optimizers. |
 | `RECEIVE_BOOT_COMPLETED` | Automatically restarts the screenshot watcher when the device boots up. |
 
-> 🛡️ **Privacy & Responsible Development**: GitScreen requires **NO internet access** (`android.permission.INTERNET` is deliberately omitted). All images, metadata, and database records remain 100% on the user's physical device. No telemetry, credentials, or private data are ever stored or transmitted.
+> [!IMPORTANT]
+> **Privacy & Responsible Development**: GitScreen requires **NO internet access** (`android.permission.INTERNET` is deliberately omitted). All images, metadata, and database records remain 100% on the user's physical device. No telemetry, credentials, or private data are ever stored or transmitted.
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - **Android Studio**: Ladybug (2024.2.1) or newer
@@ -260,7 +261,7 @@ GitScreen is engineered strictly under **Zero-Trust Privacy** principles:
 
 ---
 
-## 👥 Team Members & Contributions
+## Team Members & Contributions
 
 Submitted by **Team GitScreen** for **Hacktoberfest Hackathon NUST × NSTP 2026**:
 
@@ -271,7 +272,7 @@ Submitted by **Team GitScreen** for **Hacktoberfest Hackathon NUST × NSTP 2026*
 
 ---
 
-## 💖 Acknowledgements & Open-Source Credits
+## Acknowledgements & Open-Source Credits
 
 GitScreen proudly stands on the shoulders of the open-source community:
 
@@ -283,6 +284,6 @@ GitScreen proudly stands on the shoulders of the open-source community:
 
 ---
 
-## 📄 License
+## License
 
-This project is licensed under the **[MIT License](LICENSE)** — see the [LICENSE](LICENSE) file for complete details. Open-sourced with ❤️ for Hacktoberfest.
+This project is licensed under the **[MIT License](LICENSE)** — see the [LICENSE](LICENSE) file for complete details. Open-sourced for Hacktoberfest.
