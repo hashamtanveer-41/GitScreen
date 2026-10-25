@@ -1,0 +1,46 @@
+name: 🐛 Bug Report
+description: File a bug report to help us improve GitScreen
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report an issue!
+  - type: input
+    id: os-version
+    attributes:
+      label: Android Version / API Level
+      placeholder: e.g. Android 14 (API 34)
+    validations:
+      required: true
+  - type: input
+    id: device-model
+    attributes:
+      label: Device Model
+      placeholder: e.g. Google Pixel 8, Samsung Galaxy S23, Android Emulator
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the Bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue?
+      value: |
+        1. Open GitScreen
+        2. Take a screenshot in [App Name]
+        3. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+    validations:
+      required: true
