@@ -262,11 +262,12 @@ GitScreen is engineered strictly under **Zero-Trust Privacy** principles:
 
 ## 👥 Team Members & Contributions
 
-Submitted by **Hasham Tanveer** for **Hacktoberfest Hackathon NUST × NSTP 2026**:
+Submitted by **Team GitScreen** for **Hacktoberfest Hackathon NUST × NSTP 2026**:
 
 | Contributor | Role | Core Contributions |
 |---|---|---|
-| **Hasham Tanveer**<br>([@hashamtanveer-41](https://github.com/hashamtanveer-41)) | Lead Developer & Architect | • Overall system architecture and data modeling.<br>• Implementation of `ForegroundAppDetector` heuristic and `ScreenshotOrganizer` scoped storage logic.<br>• Background service lifecycle, ContentObserver debouncing, and `BootReceiver`.<br>• Room Database schema, DAOs, and repository orchestration.<br>• Material 3 Jetpack Compose UI (HomeScreen, DetailScreen, ManualTag flow).<br>• Comprehensive documentation, open-source governance, and test guides. |
+| **Muhammad Hamza**<br>([@M-Hamza01](https://github.com/M-Hamza01)) | **Lead Developer & System Architect** | • Core background daemon architecture and `ScreenshotWatcherService` lifecycle management.<br>• Implementation of `ForegroundAppDetector` heuristic algorithm using `UsageStatsManager`.<br>• MediaStore scoped storage integration and atomic file copy pipeline in `ScreenshotOrganizer`.<br>• Concurrency synchronization using coroutine `scanMutex`, `SupervisorJob`, and atomic event debouncing.<br>• Background notification channels and boot trigger integration (`BootReceiver`). |
+| **Hasham Tanveer**<br>([@hashamtanveer-41](https://github.com/hashamtanveer-41)) | **Android Developer & Technical Documenter** | • Jetpack Compose UI architecture (`HomeScreen`, `AppDetailScreen`, `VersionDetailScreen`, `ManualTagScreen`).<br>• Material 3 design system implementation with dynamic theming, dark/light modes, and responsive grids.<br>• Room Database layer design (`AppDatabase`, `Entities`, `Daos`) and `ScreenshotRepository` state flows.<br>• Fallback tagging workflow with standalone `ManualTagActivity` and direct-launch pending intents.<br>• Comprehensive project documentation, Hackathon criteria alignment, Kiro integration analysis, open-source guidelines, and testing guides. |
 
 ---
 
