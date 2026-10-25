@@ -102,7 +102,7 @@ During the development of **GitScreen**, **Kiro** (`kiro-cli`) was utilized as a
 </div>
 
 ### 1. Architectural System Design & Component Modeling
-- **Component Breakdown**: Kiro assisted in defining the core subsystems for GitScreen, mapping out capture modules, metadata binders, storage abstractions, visual diff engines, and CLI/UI layers.
+- **Subsystem Breakdown**: Kiro assisted in defining the core subsystems for GitScreen, mapping out capture modules, metadata binders, storage abstractions, visual diff engines, and CLI/UI layers.
 - **Entity-Relationship Modeling**: Used Kiro to model the relational hierarchy between `AppEntity`, `VersionEntity`, and `ScreenshotEntity` in Room, defining cascade delete behaviors and index constraints to avoid orphaned child entries.
 - **MVVM Data Flow**: Formulated the unidirectional state pipeline where `ScreenshotRepository` exposes `Flow<List<AppSummary>>` and `Flow<List<ScreenshotEntity>>` directly to Compose ViewModels.
 
@@ -114,16 +114,34 @@ During the development of **GitScreen**, **Kiro** (`kiro-cli`) was utilized as a
 
 </div>
 
-### 2. Solving Complex Concurrency & Race Conditions
-- A single screenshot capture on modern Android triggers multiple rapid `onChange()` calls from `MediaStore` (file creation, metadata indexing, `IS_PENDING` flag toggle, thumbnail generation).
-- With Kiro's analysis, we replaced an error-prone job cancellation approach with an **atomic debounced scheduling mechanism** (`AtomicBoolean` retrigger queue) paired with a coroutine `scanMutex`. This eliminated duplicate file copies and prevented missed scans.
+### 2. End-to-End Pipeline Specification
+- Defined the formal 9-stage GitScreen pipeline in Kiro:
+  `[1] SETUP -> [2] CAPTURE -> [3] BIND METADATA -> [4] STORE -> [5] INDEX/SEARCH -> [6] DIFF -> [7] REVIEW/TIMELINE -> [8] SYNC -> [9] MAINTENANCE/GC`
+- Outlined directory storage strategies (local app-scoped paths vs. in-repo Git hooks) and repository hash anchoring.
 
-### 3. Foreground App Detection Heuristic
+<div align="center">
+
+![Kiro Pipeline Overview](docs/images/kiro-pipeline-overview.png)
+
+*Figure 3: End-to-end GitScreen pipeline stages defined during Kiro architecture sessions.*
+
+</div>
+
+### 3. Edge-Case Matrix & Concurrency Safety
+- **Git & System State Handling**: Evaluated edge scenarios with Kiro, including detached HEAD references, shallow clones, pre-initial commit states, active merges/rebases, and path sanitization for branch names containing slashes.
+- **Solving MediaStore Event Bursts**: A single screenshot capture on modern Android triggers multiple rapid `onChange()` calls from `MediaStore` (file creation, metadata indexing, `IS_PENDING` flag toggle, thumbnail generation). Kiro assisted in replacing an error-prone job cancellation approach with an **atomic debounced scheduling mechanism** (`AtomicBoolean` retrigger queue) paired with a coroutine `scanMutex`.
+
+<div align="center">
+
+![Kiro Edge Cases](docs/images/kiro-edge-cases.png)
+
+*Figure 4: Edge-case analysis matrix covering Git states, merge/rebase scenarios, and path sanitization.*
+
+</div>
+
+### 4. Foreground App Detection Heuristic & Verification
 - Standard Android screenshots carry no origin metadata. Kiro helped design the heuristic using `UsageStatsManager.queryEvents()` over a 15-second sliding time window, filtering out launcher interfaces (AOSP Launcher, Pixel Quickstep, SystemUI) to accurately identify the real target application.
-
-### 4. Code Quality, Edge Cases & Documentation
 - Designed edge-case recovery: ensuring that if a screenshot file copy fails, ghost database rows with 0 screenshots are never committed, plus a startup auto-cleanup routine (`cleanupEmptyEntries()`).
-- Generated structured Open-Source documentation, issue templates, and architecture flowcharts for Hacktoberfest submission readiness.
 
 ---
 
