@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">GitScreen</string>
+    <string name="notif_channel_watch_name">Screenshot Watcher</string>
+    <string name="notif_channel_watch_desc">Keeps GitScreen running so it can catch new screenshots</string>
+    <string name="notif_channel_prompt_name">Manual Tagging Needed</string>
+    <string name="notif_channel_prompt_desc">Shown when GitScreen can\'t auto-detect the app/version for a screenshot</string>
+    <string name="notif_watch_title">GitScreen is watching</string>
+    <string name="notif_watch_text">New screenshots will be sorted automatically</string>
+    <string name="notif_manual_title">Couldn\'t identify the app</string>
+    <string name="notif_manual_text">Tap to tag this screenshot manually</string>
+</resources>
