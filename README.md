@@ -91,11 +91,28 @@ Running silently in the background, GitScreen monitors new screenshot creations 
 
 ## Kiro Challenge Track Usage
 
-During the development of **GitScreen**, **Kiro** was utilized as an AI development accelerator across all phases of the project:
+During the development of **GitScreen**, **Kiro** (`kiro-cli`) was utilized as an AI development accelerator and architectural companion across all phases of the project:
 
-### 1. Architectural System Design
+<div align="center">
+
+![Kiro CLI Terminal Session](docs/images/kiro-cli-terminal.png)
+
+*Figure 1: Kiro CLI terminal session actively utilized during planning and architecture modeling.*
+
+</div>
+
+### 1. Architectural System Design & Component Modeling
+- **Component Breakdown**: Kiro assisted in defining the core subsystems for GitScreen, mapping out capture modules, metadata binders, storage abstractions, visual diff engines, and CLI/UI layers.
 - **Entity-Relationship Modeling**: Used Kiro to model the relational hierarchy between `AppEntity`, `VersionEntity`, and `ScreenshotEntity` in Room, defining cascade delete behaviors and index constraints to avoid orphaned child entries.
 - **MVVM Data Flow**: Formulated the unidirectional state pipeline where `ScreenshotRepository` exposes `Flow<List<AppSummary>>` and `Flow<List<ScreenshotEntity>>` directly to Compose ViewModels.
+
+<div align="center">
+
+![Kiro Architecture & Component Modeling](docs/images/kiro-architecture-components.png)
+
+*Figure 2: Component architecture and storage/metadata flow generated during Kiro planning sessions.*
+
+</div>
 
 ### 2. Solving Complex Concurrency & Race Conditions
 - A single screenshot capture on modern Android triggers multiple rapid `onChange()` calls from `MediaStore` (file creation, metadata indexing, `IS_PENDING` flag toggle, thumbnail generation).
