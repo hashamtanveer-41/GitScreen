@@ -15,8 +15,26 @@
 [![Hacktoberfest 2026](https://img.shields.io/badge/Hacktoberfest-2026-orange?style=flat-square&logo=hacktoberfest)](https://hacktoberfest.com/)
 [![Hackathon Track](https://img.shields.io/badge/Track-Developer%20Tools%20%26%20Productivity-blueviolet?style=flat-square)](#track-alignment)
 [![Kiro Track](https://img.shields.io/badge/Built%20With-Kiro%20Track-FF6B6B?style=flat-square)](#kiro-challenge-track-usage)
+[![UN SDG 9](https://img.shields.io/badge/UN%20SDG%209-Industry%2C%20Innovation%20%26%20Infrastructure-FD6925?style=flat-square)](#united-nations-sustainable-development-goals-sdgs)
+[![UN SDG 8](https://img.shields.io/badge/UN%20SDG%208-Decent%20Work%20%26%20Economic%20Growth-A21942?style=flat-square)](#united-nations-sustainable-development-goals-sdgs)
+[![UN SDG 4](https://img.shields.io/badge/UN%20SDG%204-Quality%20Education-C5192D?style=flat-square)](#united-nations-sustainable-development-goals-sdgs)
 
 </div>
+
+---
+
+## United Nations Sustainable Development Goals (SDGs)
+
+GitScreen directly aligns with the United Nations 2030 Agenda for Sustainable Development, contributing to the following global goals:
+
+### SDG 9: Industry, Innovation, and Infrastructure
+GitScreen strengthens digital innovation and open-source technological infrastructure by delivering an automated, localized tool for mobile software verification and quality control. By automating screenshot categorization and metadata binding directly on-device, it lowers the barrier for software engineers, startups, and open-source contributors to build robust, visually consistent applications. It promotes technological progress by replacing expensive proprietary testing infrastructure with accessible, community-driven software.
+
+### SDG 8: Decent Work and Economic Growth
+GitScreen drives workforce productivity and operational efficiency by eliminating repetitive, manual media sorting during mobile engineering and QA testing cycles. By establishing structured, automated visual regression tracking across sprint milestones, engineering teams can dedicate their cognitive effort to solving high-value problems rather than tedious file management. This technological upgrading improves workplace productivity and accelerates digital product delivery for independent developers and organizations.
+
+### SDG 4: Quality Education
+GitScreen supports inclusive technical education by providing students, aspiring developers, and academic researchers with a fully open-source, reference implementation of modern Android architecture (Jetpack Compose, Room, MVVM, and Scoped Storage). By making professional-grade developer tools freely accessible and documented with end-to-end architecture guides, it helps bridge technical skill gaps in software engineering and mobile development education.
 
 ---
 
