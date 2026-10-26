@@ -37,6 +37,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.zivxio.gitscreen.data.repository.AppSummary
 import com.zivxio.gitscreen.ui.viewmodel.HomeViewModel
 import com.zivxio.gitscreen.util.Permissions
@@ -45,14 +56,70 @@ import com.zivxio.gitscreen.util.Permissions
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
-    onAppClick: (appId: Long, appName: String) -> Unit
+    onAppClick: (appId: Long, appName: String) -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     val apps by viewModel.apps.collectAsState()
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     var permissionsOk by remember { mutableStateOf(Permissions.hasAllCorePermissions(context)) }
+    var appToDelete by remember { mutableStateOf<AppSummary?>(null) }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                permissionsOk = Permissions.hasAllCorePermissions(context)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    if (appToDelete != null) {
+        val app = appToDelete!!
+        AlertDialog(
+            onDismissRequest = { appToDelete = null },
+            title = { Text("Delete App") },
+            text = {
+                Text(
+                    "Are you sure you want to delete \"${app.displayName}\"? " +
+                        "This will permanently delete all ${app.versionCount} version(s) and ${app.screenshotCount} screenshot(s)."
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteApp(app.appId)
+                        appToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { appToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("GitScreen") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("GitScreen") },
+                actions = {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(Icons.Default.Settings, contentDescription = "Settings")
+                    }
+                }
+            )
+        }
     ) { padding ->
         Column(modifier = Modifier.padding(padding).fillMaxSize()) {
             if (!permissionsOk) {
@@ -68,7 +135,11 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(apps, key = { it.appId }) { app ->
-                        AppRow(app = app, onClick = { onAppClick(app.appId, app.displayName) })
+                        AppRow(
+                            app = app,
+                            onClick = { onAppClick(app.appId, app.displayName) },
+                            onLongClick = { appToDelete = app }
+                        )
                     }
                 }
             }
@@ -76,12 +147,20 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun AppRow(app: AppSummary, onClick: () -> Unit) {
+private fun AppRow(
+    app: AppSummary,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
     ) {
         Row(
             modifier = Modifier.padding(12.dp),

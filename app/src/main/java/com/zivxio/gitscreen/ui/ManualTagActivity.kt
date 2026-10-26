@@ -20,6 +20,7 @@ class ManualTagActivity : ComponentActivity() {
 
     companion object {
         const val EXTRA_TAKEN_AT = "extra_taken_at"
+        const val EXTRA_APP_NAME = "extra_app_name"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,6 +29,7 @@ class ManualTagActivity : ComponentActivity() {
         val screenshotUri: Uri = intent?.data ?: run { finish(); return }
         val takenAt = intent?.getLongExtra(EXTRA_TAKEN_AT, System.currentTimeMillis())
             ?: System.currentTimeMillis()
+        val suggestedAppName = intent?.getStringExtra(EXTRA_APP_NAME) ?: ""
 
         val app = application as GitScreenApp
         val organizer = ScreenshotOrganizer(applicationContext)
@@ -35,7 +37,13 @@ class ManualTagActivity : ComponentActivity() {
         setContent {
             GitScreenTheme {
                 val viewModel: ManualTagViewModel = viewModel(
-                    factory = ManualTagViewModel.Factory(app.repository, organizer, screenshotUri, takenAt)
+                    factory = ManualTagViewModel.Factory(
+                        app.repository,
+                        organizer,
+                        screenshotUri,
+                        takenAt,
+                        suggestedAppName
+                    )
                 )
                 ManualTagScreen(viewModel = viewModel, onSaved = { finish() })
             }

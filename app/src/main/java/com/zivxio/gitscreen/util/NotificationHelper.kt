@@ -54,16 +54,25 @@ object NotificationHelper {
             .build()
     }
 
-    fun showManualTagNotification(context: Context, screenshotUri: Uri, takenAt: Long) {
+    fun showManualTagNotification(
+        context: Context,
+        screenshotUri: Uri,
+        takenAt: Long,
+        suggestedAppName: String? = null
+    ) {
         val intent = Intent(context, ManualTagActivity::class.java).apply {
             action = Intent.ACTION_VIEW
             data = screenshotUri
             putExtra(ManualTagActivity.EXTRA_TAKEN_AT, takenAt)
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            if (!suggestedAppName.isNullOrBlank()) {
+                putExtra(ManualTagActivity.EXTRA_APP_NAME, suggestedAppName)
+            }
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
+        val notifId = MANUAL_TAG_NOTIFICATION_ID_BASE + (kotlin.math.abs(screenshotUri.hashCode()) % 1000)
         val pendingIntent = PendingIntent.getActivity(
             context,
-            screenshotUri.hashCode(),
+            notifId,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -78,6 +87,6 @@ object NotificationHelper {
             .build()
 
         val manager = context.getSystemService(NotificationManager::class.java)
-        manager.notify(MANUAL_TAG_NOTIFICATION_ID_BASE + (screenshotUri.hashCode() % 1000), notification)
+        manager.notify(notifId, notification)
     }
 }

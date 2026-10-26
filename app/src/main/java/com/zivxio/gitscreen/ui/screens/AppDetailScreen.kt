@@ -28,6 +28,17 @@ import androidx.compose.ui.unit.dp
 import com.zivxio.gitscreen.data.repository.VersionSummary
 import com.zivxio.gitscreen.ui.viewmodel.AppDetailViewModel
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.font.FontWeight
+
 /**
  * Shows every version "branch" GitScreen has recorded for one app, newest first —
  * this is the "Visual Git" log view for a single app.
@@ -40,6 +51,39 @@ fun AppDetailScreen(
     onBack: () -> Unit
 ) {
     val versions by viewModel.versions.collectAsState()
+    var versionToDelete by remember { mutableStateOf<VersionSummary?>(null) }
+
+    if (versionToDelete != null) {
+        val version = versionToDelete!!
+        AlertDialog(
+            onDismissRequest = { versionToDelete = null },
+            title = { Text("Delete Version") },
+            text = {
+                Text(
+                    "Are you sure you want to delete version \"v${version.versionLabel}\"? " +
+                        "This will permanently delete all ${version.screenshotCount} screenshot(s) in this version."
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteVersion(version.versionId)
+                        versionToDelete = null
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { versionToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -64,26 +108,38 @@ fun AppDetailScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(versions, key = { it.versionId }) { version ->
-                    VersionRow(version = version, onClick = { onVersionClick(version.versionId, version.versionLabel) })
+                    VersionRow(
+                        version = version,
+                        onClick = { onVersionClick(version.versionId, version.versionLabel) },
+                        onLongClick = { versionToDelete = version }
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun VersionRow(version: VersionSummary, onClick: () -> Unit) {
+private fun VersionRow(
+    version: VersionSummary,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
     ) {
         androidx.compose.foundation.layout.Row(
             modifier = Modifier.padding(16.dp).fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("v${version.versionLabel}", style = MaterialTheme.typography.titleMedium)
+            Text("v${version.versionLabel}", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
             Text(
                 "${version.screenshotCount} screenshot${if (version.screenshotCount == 1) "" else "s"}",
                 style = MaterialTheme.typography.bodySmall,

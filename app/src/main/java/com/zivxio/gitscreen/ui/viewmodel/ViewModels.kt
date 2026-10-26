@@ -33,6 +33,12 @@ class HomeViewModel(private val repository: ScreenshotRepository) : ViewModel() 
         }
     }
 
+    fun deleteApp(appId: Long) {
+        viewModelScope.launch {
+            repository.deleteApp(appId)
+        }
+    }
+
     class Factory(private val repository: ScreenshotRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T = HomeViewModel(repository) as T
@@ -49,12 +55,20 @@ class AppDetailViewModel(
     val versions: StateFlow<List<VersionSummary>> = _versions.asStateFlow()
 
     init {
-        refresh()
+        viewModelScope.launch {
+            repository.observeVersionSummaries(appId).collectLatest { _versions.value = it }
+        }
     }
 
     fun refresh() {
         viewModelScope.launch {
             _versions.value = repository.getVersionSummaries(appId)
+        }
+    }
+
+    fun deleteVersion(versionId: Long) {
+        viewModelScope.launch {
+            repository.deleteVersion(versionId)
         }
     }
 
@@ -84,6 +98,12 @@ class VersionDetailViewModel(
         }
     }
 
+    fun deleteScreenshot(screenshotId: Long) {
+        viewModelScope.launch {
+            repository.deleteScreenshot(screenshotId)
+        }
+    }
+
     class Factory(
         private val repository: ScreenshotRepository,
         private val versionId: Long,
@@ -104,7 +124,8 @@ class ManualTagViewModel(
     private val repository: ScreenshotRepository,
     private val organizer: ScreenshotOrganizer,
     val screenshotUri: Uri,
-    val takenAt: Long
+    val takenAt: Long,
+    val initialAppName: String = ""
 ) : ViewModel() {
 
     private val _existingApps = MutableStateFlow<List<AppEntity>>(emptyList())
@@ -168,10 +189,11 @@ class ManualTagViewModel(
         private val repository: ScreenshotRepository,
         private val organizer: ScreenshotOrganizer,
         private val screenshotUri: Uri,
-        private val takenAt: Long
+        private val takenAt: Long,
+        private val initialAppName: String = ""
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            ManualTagViewModel(repository, organizer, screenshotUri, takenAt) as T
+            ManualTagViewModel(repository, organizer, screenshotUri, takenAt, initialAppName) as T
     }
 }

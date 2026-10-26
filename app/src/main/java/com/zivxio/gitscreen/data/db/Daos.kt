@@ -27,6 +27,9 @@ interface AppDao {
     // versions are gone, this removes any app left with no versions at all.
     @Query("DELETE FROM apps WHERE id NOT IN (SELECT DISTINCT appId FROM versions)")
     suspend fun deleteAppsWithNoVersions()
+
+    @Query("DELETE FROM apps WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }
 
 @Dao
@@ -49,6 +52,9 @@ interface VersionDao {
     // have zero screenshots.
     @Query("DELETE FROM versions WHERE id NOT IN (SELECT DISTINCT versionId FROM screenshots)")
     suspend fun deleteVersionsWithNoScreenshots()
+
+    @Query("DELETE FROM versions WHERE id = :id")
+    suspend fun deleteById(id: Long)
 }
 
 @Dao
@@ -62,6 +68,24 @@ interface ScreenshotDao {
 
     @Query("SELECT * FROM screenshots WHERE originalUri = :originalUri LIMIT 1")
     suspend fun getByOriginalUri(originalUri: String): ScreenshotEntity?
+
+    @Query("SELECT * FROM screenshots WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): ScreenshotEntity?
+
+    @Query("DELETE FROM screenshots WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
+    @Query("SELECT mediaUri FROM screenshots WHERE versionId = :versionId")
+    suspend fun getMediaUrisForVersion(versionId: Long): List<String>
+
+    @Query(
+        """
+        SELECT s.mediaUri FROM screenshots s
+        INNER JOIN versions v ON s.versionId = v.id
+        WHERE v.appId = :appId
+        """
+    )
+    suspend fun getMediaUrisForApp(appId: Long): List<String>
 
     @Query("SELECT * FROM screenshots WHERE versionId = :versionId ORDER BY takenAt DESC")
     fun observeForVersion(versionId: Long): Flow<List<ScreenshotEntity>>

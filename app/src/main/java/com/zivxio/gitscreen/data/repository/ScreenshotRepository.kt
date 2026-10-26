@@ -1,5 +1,7 @@
 package com.zivxio.gitscreen.data.repository
 
+import android.content.Context
+import android.net.Uri
 import com.zivxio.gitscreen.data.db.AppDao
 import com.zivxio.gitscreen.data.db.AppEntity
 import com.zivxio.gitscreen.data.db.ScreenshotDao
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.map
  * both go through this class so file-organizing logic lives in one place.
  */
 class ScreenshotRepository(
+    private val context: Context,
     private val appDao: AppDao,
     private val versionDao: VersionDao,
     private val screenshotDao: ScreenshotDao
@@ -42,6 +45,17 @@ class ScreenshotRepository(
             }
         }
 
+    fun observeVersionSummaries(appId: Long): Flow<List<VersionSummary>> =
+        versionDao.observeForApp(appId).map { versions ->
+            versions.map { v ->
+                VersionSummary(
+                    versionId = v.id,
+                    versionLabel = v.versionLabel,
+                    screenshotCount = screenshotDao.countForVersion(v.id)
+                )
+            }
+        }
+
     suspend fun getVersionSummaries(appId: Long): List<VersionSummary> =
         versionDao.observeForApp(appId).first().map { v ->
             VersionSummary(
@@ -50,6 +64,39 @@ class ScreenshotRepository(
                 screenshotCount = screenshotDao.countForVersion(v.id)
             )
         }
+
+    suspend fun deleteScreenshot(screenshotId: Long) {
+        val shot = screenshotDao.getById(screenshotId) ?: return
+        deleteMediaFile(shot.mediaUri)
+        screenshotDao.deleteById(screenshotId)
+        cleanupEmptyEntries()
+    }
+
+    suspend fun deleteVersion(versionId: Long) {
+        val uris = screenshotDao.getMediaUrisForVersion(versionId)
+        uris.forEach { deleteMediaFile(it) }
+        versionDao.deleteById(versionId)
+        cleanupEmptyEntries()
+    }
+
+    suspend fun deleteApp(appId: Long) {
+        val uris = screenshotDao.getMediaUrisForApp(appId)
+        uris.forEach { deleteMediaFile(it) }
+        appDao.deleteById(appId)
+        cleanupEmptyEntries()
+    }
+
+    private fun deleteMediaFile(uriString: String) {
+        try {
+            val uri = Uri.parse(uriString)
+            context.contentResolver.delete(uri, null, null)
+        } catch (_: Exception) {
+            try {
+                val file = java.io.File(uriString)
+                if (file.exists()) file.delete()
+            } catch (_: Exception) {}
+        }
+    }
 
     /**
      * True if this exact source screenshot has already been organized.

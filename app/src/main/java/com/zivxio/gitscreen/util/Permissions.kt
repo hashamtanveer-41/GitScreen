@@ -36,6 +36,32 @@ object Permissions {
             data = Uri.parse("package:${context.packageName}")
         }
 
+    fun notificationSettingsIntent(context: Context): Intent {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+            }
+        } else {
+            appDetailsSettingsIntent(context)
+        }
+    }
+
+    fun appDetailsSettingsIntent(context: Context): Intent =
+        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", context.packageName, null)
+        }
+
+    fun isIgnoringBatteryOptimizations(context: Context): Boolean {
+        val powerManager = context.getSystemService(Context.POWER_SERVICE) as? android.os.PowerManager
+            ?: return true
+        return powerManager.isIgnoringBatteryOptimizations(context.packageName)
+    }
+
+    fun requestIgnoreBatteryOptimizationsIntent(context: Context): Intent =
+        Intent(Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS).apply {
+            data = Uri.parse("package:${context.packageName}")
+        }
+
     /** Everything required for fully-automatic organizing to work end to end. */
     fun hasAllCorePermissions(context: Context): Boolean =
         hasMediaPermission(context) && hasNotificationPermission(context) && hasUsageAccess(context)

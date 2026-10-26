@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -40,6 +41,16 @@ class ScreenshotOrganizer(private val context: Context) {
                     "${Environment.DIRECTORY_PICTURES}/GitScreen/$safeAppName/$safeVersion"
                 )
                 put(MediaStore.Images.Media.IS_PENDING, 1)
+            } else {
+                @Suppress("DEPRECATION")
+                val dir = File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                    "GitScreen/$safeAppName/$safeVersion"
+                )
+                dir.mkdirs()
+                val file = File(dir, fileName)
+                @Suppress("DEPRECATION")
+                put(MediaStore.Images.Media.DATA, file.absolutePath)
             }
         }
 
@@ -47,10 +58,29 @@ class ScreenshotOrganizer(private val context: Context) {
         val newUri = resolver.insert(collection, values) ?: return null
 
         return try {
-            resolver.openInputStream(originalUri)?.use { input ->
-                resolver.openOutputStream(newUri)?.use { output ->
-                    input.copyTo(output)
+            var copied = false
+            var attempts = 0
+            while (!copied && attempts < 3) {
+                attempts++
+                try {
+                    resolver.openInputStream(originalUri)?.use { input ->
+                        resolver.openOutputStream(newUri)?.use { output ->
+                            input.copyTo(output)
+                            copied = true
+                        }
+                    }
+                } catch (e: Exception) {
+                    if (attempts < 3) {
+                        Thread.sleep(400)
+                    } else {
+                        throw e
+                    }
                 }
+            }
+
+            if (!copied) {
+                resolver.delete(newUri, null, null)
+                return null
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -59,6 +89,7 @@ class ScreenshotOrganizer(private val context: Context) {
             }
             newUri
         } catch (e: Exception) {
+            android.util.Log.e("ScreenshotOrganizer", "Failed to organize $originalUri to $newUri", e)
             resolver.delete(newUri, null, null)
             null
         }
@@ -67,3 +98,4 @@ class ScreenshotOrganizer(private val context: Context) {
     private fun sanitize(name: String): String =
         name.trim().replace(Regex("[^A-Za-z0-9 ._-]"), "_").ifBlank { "Unknown" }
 }
+

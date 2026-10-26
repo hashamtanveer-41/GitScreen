@@ -4,6 +4,7 @@ import android.app.AppOpsManager
 import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Process
@@ -24,18 +25,46 @@ import com.zivxio.gitscreen.data.repository.DetectionResult
  */
 class ForegroundAppDetector(private val context: Context) {
 
-    /** Packages that are never the "app being screenshotted" (launchers, system UI, us). */
+    /** Packages that are never the "app being screenshotted" (launchers, system UI, us, screenshot overlays). */
     private val ignoredPackagePrefixes = listOf(
         "com.android.systemui",
         "com.zivxio.gitscreen",
-        // The recents/overview UI ("Quickstep" on Pixel/AOSP gesture-nav devices) can
-        // briefly register as foreground during the screenshot gesture itself, which
-        // was causing real screenshots to get misfiled under "Quickstep" instead of
-        // the app actually on screen.
         "com.google.android.apps.nexuslauncher",
         "com.android.launcher3",
-        "com.android.launcher"
+        "com.android.launcher",
+        "com.sec.android.app.launcher",
+        "com.miui.home",
+        "com.oppo.launcher",
+        "com.coloros.launcher",
+        "com.oneplus.launcher",
+        "com.huawei.android.launcher",
+        "com.motorola.launcher3",
+        "com.samsung.android.app.cocktailbarservice",
+        "com.samsung.android.capture"
     )
+
+    private val dynamicIgnoredPackages = mutableSetOf<String>()
+
+    private fun isIgnoredPackage(pkg: String): Boolean {
+        if (ignoredPackagePrefixes.any { pkg.startsWith(it) }) return true
+        if (dynamicIgnoredPackages.contains(pkg)) return true
+
+        return try {
+            val pm = context.packageManager
+            val homeIntent = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+            val homeActivities = pm.queryIntentActivities(homeIntent, PackageManager.MATCH_DEFAULT_ONLY)
+            for (resolveInfo in homeActivities) {
+                val homePkg = resolveInfo.activityInfo?.packageName
+                if (homePkg != null) {
+                    dynamicIgnoredPackages.add(homePkg)
+                    if (pkg == homePkg) return true
+                }
+            }
+            false
+        } catch (_: Exception) {
+            false
+        }
+    }
 
     fun hasUsageAccessPermission(): Boolean {
         val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
@@ -57,16 +86,21 @@ class ForegroundAppDetector(private val context: Context) {
     }
 
     /**
-     * Looks at usage events in a small window before [screenshotTimeMs] and returns
-     * the last package that moved to the foreground, if any.
+     * Looks at usage events and stats to determine which app was on screen around [screenshotTimeMs].
+     * Uses a multi-tiered strategy:
+     * 1. UsageEvents query in an expanded window for real-time foreground transitions.
+     * 2. UsageStats fallback inspection for ongoing/prolonged foreground sessions.
      */
-    fun detectForegroundPackage(screenshotTimeMs: Long, windowMs: Long = 15_000L): String? {
+    fun detectForegroundPackage(screenshotTimeMs: Long, windowMs: Long = 60_000L): String? {
         if (!hasUsageAccessPermission()) return null
 
-        return try {
-            val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
-            val events = usm.queryEvents(screenshotTimeMs - windowMs, screenshotTimeMs + 1_000L)
+        val usm = context.getSystemService(Context.USAGE_STATS_SERVICE) as? UsageStatsManager ?: return null
+        val now = System.currentTimeMillis()
+        val effectiveTime = if (screenshotTimeMs > 0L && screenshotTimeMs <= now + 5_000L) screenshotTimeMs else now
 
+        // Tier 1: Query usage events
+        try {
+            val events = usm.queryEvents(effectiveTime - windowMs, effectiveTime + 2_000L)
             var lastForegroundPackage: String? = null
             val event = UsageEvents.Event()
             while (events.hasNextEvent()) {
@@ -75,20 +109,42 @@ class ForegroundAppDetector(private val context: Context) {
                     (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
                         event.eventType == UsageEvents.Event.ACTIVITY_RESUMED)
 
-                if (isForegroundEvent && event.timeStamp <= screenshotTimeMs) {
+                if (isForegroundEvent && event.timeStamp <= effectiveTime + 1_500L) {
                     val pkg = event.packageName
-                    if (ignoredPackagePrefixes.none { pkg.startsWith(it) }) {
+                    if (pkg != null && !isIgnoredPackage(pkg)) {
                         lastForegroundPackage = pkg
                     }
                 }
             }
-            lastForegroundPackage
+            if (lastForegroundPackage != null) {
+                return lastForegroundPackage
+            }
         } catch (e: Exception) {
-            // Usage access can be revoked mid-session by the user or the OS; never let
-            // this take down the caller's coroutine scope over a detection hiccup.
             android.util.Log.w("ForegroundAppDetector", "Failed to query usage events", e)
-            null
         }
+
+        // Tier 2: Fallback to queryUsageStats (handles when user has been using the same app without recent transition)
+        try {
+            val statsList = usm.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY,
+                effectiveTime - (1000L * 60 * 60), // Look back 1 hour
+                effectiveTime + 2_000L
+            )
+            if (!statsList.isNullOrEmpty()) {
+                val candidate = statsList
+                    .filter { it.packageName != null && !isIgnoredPackage(it.packageName) }
+                    .filter { it.lastTimeUsed in 1..(effectiveTime + 2_000L) }
+                    .maxByOrNull { it.lastTimeUsed }
+
+                if (candidate != null) {
+                    return candidate.packageName
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("ForegroundAppDetector", "Failed to query usage stats fallback", e)
+        }
+
+        return null
     }
 
     /** Resolves a package name into a friendly label + versionName/versionCode, if installed. */

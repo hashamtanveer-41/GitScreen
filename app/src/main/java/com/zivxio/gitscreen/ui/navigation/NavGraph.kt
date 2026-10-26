@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.zivxio.gitscreen.data.repository.ScreenshotRepository
 import com.zivxio.gitscreen.ui.screens.AppDetailScreen
 import com.zivxio.gitscreen.ui.screens.HomeScreen
+import com.zivxio.gitscreen.ui.screens.SettingsScreen
 import com.zivxio.gitscreen.ui.screens.VersionDetailScreen
 import com.zivxio.gitscreen.ui.viewmodel.AppDetailViewModel
 import com.zivxio.gitscreen.ui.viewmodel.HomeViewModel
@@ -20,6 +21,7 @@ import java.net.URLEncoder
 
 private object Routes {
     const val HOME = "home"
+    const val SETTINGS = "settings"
     const val APP_DETAIL = "app/{appId}/{appName}"
     const val VERSION_DETAIL = "app/{appId}/version/{versionId}/{versionLabel}"
 
@@ -39,8 +41,15 @@ fun GitScreenNavHost(repository: ScreenshotRepository) {
                 viewModel = vm,
                 onAppClick = { appId, appName ->
                     navController.navigate(Routes.appDetail(appId, appName))
+                },
+                onSettingsClick = {
+                    navController.navigate(Routes.SETTINGS)
                 }
             )
+        }
+
+        composable(Routes.SETTINGS) {
+            SettingsScreen(onBack = { navController.popBackStack() })
         }
 
         composable(

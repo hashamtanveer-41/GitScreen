@@ -43,7 +43,7 @@ fun ManualTagScreen(
     val existingApps by viewModel.existingApps.collectAsState()
     val saveState by viewModel.saveState.collectAsState()
 
-    var appName by remember { mutableStateOf("") }
+    var appName by remember { mutableStateOf(viewModel.initialAppName) }
     var versionLabel by remember { mutableStateOf("") }
 
     LaunchedEffect(saveState) {

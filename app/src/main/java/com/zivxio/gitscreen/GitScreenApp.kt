@@ -23,6 +23,7 @@ class GitScreenApp : Application() {
 
     val repository: ScreenshotRepository by lazy {
         ScreenshotRepository(
+            context = this,
             appDao = database.appDao(),
             versionDao = database.versionDao(),
             screenshotDao = database.screenshotDao()
